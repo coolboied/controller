@@ -11,23 +11,23 @@ class TaskThread(threading.Thread):
 	
 	def deal_task(self):
 		while 1:
+			task = self.task_queue.get()
+			sock = task['sock']
+			comm = task['command']
 			try:
-				print(3)
-				task = self.task_queue.get()
-				sock = task['sock']
-				comm = task['command']
 				print(comm)
 				results = os.popen(comm).readlines()
-				print(results)
-				req = ''
+				print(results,)
+				req = '' 
 				for result in results:
 					req = req + result
+				if req=='':
+					req= 'error'
 				sock.send(req.encode('utf-8'))
 			except Exception as e:
-				print(e)
+				sock.send(e.encode('utf-8'))
 	
 	def run(self):
-		print('4')
 		self.deal_task()
 
 
