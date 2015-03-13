@@ -13,7 +13,7 @@ class Server:
 		self.rcv_mess_thread.start()
 	def deal_commander(self):
 		task_tread_pool = TaskTreadPool(self.task_queue, self.req_queue)
-		task_tread_pool.create_threads(50)
+		task_tread_pool.create_threads(10)
 
 server = Server()
 server.start_recv_commander()

@@ -11,9 +11,11 @@ class TcpClient:
 	def send_mess(self, mess):
 		mess = mess+'#'
 		self.client.send(mess.encode('utf-8'))
-	def recv_mess(self):
-		data = self.client.recv(1024)
+	def recv_mess(self, length=1024):
+		data = self.client.recv(length)
 		return data
+	def get_socket(self):
+		return self.client
 
 if __name__ == '__main__':
 	tcpClient = TcpClient()

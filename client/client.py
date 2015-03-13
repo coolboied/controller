@@ -1,4 +1,5 @@
 import sys
+import struct
 from PyQt4 import QtCore, QtGui
 from TcpClient import *
 from ResultGui import *
@@ -40,6 +41,12 @@ class Ui_MainWindow():
 		self.menubar.setObjectName(_fromUtf8("menubar"))
 		self.statusbar = QtGui.QStatusBar(MainWindow)
 		self.statusbar.setObjectName(_fromUtf8("statusbar"))
+		self.groupBox = QtGui.QGroupBox(self.centralwidget)
+		self.groupBox.setGeometry(QtCore.QRect(10, 160, 631, 80))
+		self.groupBox.setObjectName(_fromUtf8("groupBox"))
+		self.screen_shot_button = QtGui.QPushButton(self.groupBox)
+		self.screen_shot_button.setGeometry(QtCore.QRect(40, 30, 75, 23))
+		self.screen_shot_button.setObjectName(_fromUtf8("screen_shot_button"))
 
 		self.retranslateUi(MainWindow)
 		self.reg_clicker(MainWindow)
@@ -49,9 +56,12 @@ class Ui_MainWindow():
 		self.commit_button.setText(_translate("MainWindow", "提交命令", None))
 		self.clear_button.setText(_translate("MainWindow", "清空", None))
 		self.label.setText(_translate("MainWindow", "执行命令:", None))
+		self.groupBox.setTitle(_translate("MainWindow", "功能", None))
+		self.screen_shot_button.setText(_translate("MainWindow", "截图", None))
 	
 	def reg_clicker(self,MainWindow):
 		MainWindow.connect(self.commit_button,QtCore.SIGNAL('clicked()'),self.commit_commander) 
+		MainWindow.connect(self.screen_shot_button,QtCore.SIGNAL('clicked()'),self.screen_shot) 
 	
 	def commit_commander(self):
 		tcpClient = TcpClient()
@@ -61,7 +71,29 @@ class Ui_MainWindow():
 		self.result_gui = ResultGui(data.decode('utf-8'))
 		self.result_gui.show()
 
+	def screen_shot(self):
+		tcpClient = TcpClient()
+		tcpClient.send_mess('screen_shot')
+		size = struct.calcsize('3i')
+		data = tcpClient.recv_mess(size)
+		length,w,h = struct.unpack('3i', data)
+		print(length,w,h)
+		img_b = tcpClient.recv_mess(length)
+		image=QtGui.QImage(img_b[::-1],w,h,QtGui.QImage.Format_RGB888); 
+		image = image.mirrored(True,False)
+		image.save('a.png')
+		mp = QtGui.QPixmap().fromImage(image)
+		sence = QtGui.QGraphicsScene()
+		sence.addPixmap(mp)
+		self.view =  QtGui.QGraphicsView(sence); 
+		self.view.show()
+
+		
+
+
+
 def main():
+
 
 	app = QtGui.QApplication(sys.argv)
 
